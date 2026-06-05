@@ -26,7 +26,7 @@ useEffect(() => {
             setError(null)
 
             try {
-                const res = await fetch(`/api/v1/player/${selectedId}/landing`)
+                const res = await fetch(`http://localhost:3001/players/${selectedId}/stats`)
                 if (!res.ok) throw new Error('Failed to fetch player')
                 const data = await res.json()
 
