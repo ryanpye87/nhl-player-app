@@ -45,7 +45,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
   }
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="flex flex-col sm:flex-row gap-2 items-start">
       <select
         value={selectedTeam}
         onChange={(e) => {
@@ -54,7 +54,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
           setIsOpen(true);
           onReset();
         }}
-        className="bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full sm:w-auto bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         {teams.map((team) => (
           <option key={team} value={team}>
@@ -63,7 +63,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
         ))}
       </select>
 
-      <div className="relative w-72">
+      <div className="relative w-full sm:w-72">
         <input
           type="text"
           value={query}
@@ -95,7 +95,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
       {isFiltered && (
         <button
           onClick={handleReset}
-          className="h-10 px-3 rounded-md bg-gray-700 hover:bg-gray-600 text-sm text-gray-300 transition-colors"
+          className="w-full sm:w-auto h-10 px-3 rounded-md bg-gray-700 hover:bg-gray-600 text-sm text-gray-300 transition-colors"
         >
           Clear
         </button>

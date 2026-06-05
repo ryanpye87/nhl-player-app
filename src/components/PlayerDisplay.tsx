@@ -8,7 +8,7 @@ interface Props {
 
 function PlayerDisplay({ detail }: Props) {
   return (
-    <div className="flex gap-8 items-start mt-8">
+    <div className="flex flex-col sm:flex-row gap-6 items-stretch">
       <PlayerImage
         imageUrl={detail.imageUrl}
         playerName={detail.player.fullName}
