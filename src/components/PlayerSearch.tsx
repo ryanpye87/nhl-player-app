@@ -4,23 +4,33 @@ import { Player } from "../types";
 interface Props {
   players: Player[];
   onPlayerSelect: (player: Player) => void;
+  onReset: () => void;
 }
 
-function PlayerSearch({ players, onPlayerSelect }: Props) {
+function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<string>("All");
+  const ALL_TEAMS = "All";
+  const [selectedTeam, setSelectedTeam] = useState<string>(ALL_TEAMS);
+  const isFiltered = query !== "" || selectedTeam !== ALL_TEAMS;
+
+  function handleReset() {
+    setQuery("");
+    setSelectedTeam(ALL_TEAMS);
+    setIsOpen(false);
+    onReset();
+  }
 
   const teams = useMemo(() => {
     const abbrevs = [...new Set(players.map((p) => p.teamAbbrev))].sort();
-    return ["All", ...abbrevs];
+    return [ALL_TEAMS, ...abbrevs];
   }, [players]);
 
   const filtered = useMemo(
     () =>
       players.filter((p) => {
         const matchesTeam =
-          selectedTeam === "ALL" || p.teamAbbrev === selectedTeam;
+          selectedTeam === ALL_TEAMS || p.teamAbbrev === selectedTeam;
         const matchesQuery = p.fullName
           .toLowerCase()
           .includes(query.toLowerCase());
@@ -41,7 +51,9 @@ function PlayerSearch({ players, onPlayerSelect }: Props) {
         value={selectedTeam}
         onChange={(e) => {
           setSelectedTeam(e.target.value);
+          setQuery("");
           setIsOpen(true);
+          onReset();
         }}
         style={{ height: "32px" }}
       >
@@ -90,6 +102,12 @@ function PlayerSearch({ players, onPlayerSelect }: Props) {
           </ul>
         )}
       </div>
+
+      {isFiltered && (
+        <button onClick={handleReset} style={{ height: "32px" }}>
+          Clear
+        </button>
+      )}
     </div>
   );
 }

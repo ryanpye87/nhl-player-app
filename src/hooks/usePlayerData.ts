@@ -17,8 +17,10 @@ useEffect(() => {
 }, []) // ← empty array means "run once on mount"
 
     useEffect(() => {
-        if (!selectedId) return //do nothing if nothing selected
-
+        if (!selectedId){
+            setPlayerDetail(null)
+            return //do nothing if nothing selected
+        }
         async function fetchPlayer() {
             setLoading(true)
             setError(null)

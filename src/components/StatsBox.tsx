@@ -22,7 +22,7 @@ function SkaterRows({
         ["Shooting %", `${(stats.shootingPctg * 100).toFixed(1)}%`],
       ].map(([label, value]) => (
         <tr key={label}>
-          <td style={{ paddingRight: "16px", color: "#666" }}></td>
+          <td style={{ paddingRight: "16px", color: "#666" }}>{label}</td>
           <td>
             <strong>{value}</strong>
           </td>

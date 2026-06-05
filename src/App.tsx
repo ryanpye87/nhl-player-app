@@ -12,12 +12,20 @@ function App() {
     setSelectedId(player.id);
   }
 
+  function handleReset() {
+    setSelectedId(null);
+  }
+
   return (
     <div
       style={{ fontFamily: "sans-serif", padding: "32px", maxWidth: "800px" }}
     >
       <h1>🏒 NHL Player Stats</h1>
-      <PlayerSearch players={players} onPlayerSelect={handlePlayerSelect} />
+      <PlayerSearch
+        players={players}
+        onPlayerSelect={handlePlayerSelect}
+        onReset={handleReset}
+      />
 
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
