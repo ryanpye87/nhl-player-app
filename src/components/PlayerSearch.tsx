@@ -10,27 +10,19 @@ interface Props {
 function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const ALL_TEAMS = "All";
-  const [selectedTeam, setSelectedTeam] = useState<string>(ALL_TEAMS);
-  const isFiltered = query !== "" || selectedTeam !== ALL_TEAMS;
-
-  function handleReset() {
-    setQuery("");
-    setSelectedTeam(ALL_TEAMS);
-    setIsOpen(false);
-    onReset();
-  }
+  const [selectedTeam, setSelectedTeam] = useState<string>("All");
+  const isFiltered = query !== "" || selectedTeam !== "All";
 
   const teams = useMemo(() => {
     const abbrevs = [...new Set(players.map((p) => p.teamAbbrev))].sort();
-    return [ALL_TEAMS, ...abbrevs];
+    return ["All", ...abbrevs];
   }, [players]);
 
   const filtered = useMemo(
     () =>
       players.filter((p) => {
         const matchesTeam =
-          selectedTeam === ALL_TEAMS || p.teamAbbrev === selectedTeam;
+          selectedTeam === "All" || p.teamAbbrev === selectedTeam;
         const matchesQuery = p.fullName
           .toLowerCase()
           .includes(query.toLowerCase());
@@ -45,8 +37,15 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
     setIsOpen(false);
   }
 
+  function handleReset() {
+    setQuery("");
+    setSelectedTeam("All");
+    setIsOpen(false);
+    onReset();
+  }
+
   return (
-    <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+    <div className="flex gap-2 items-center">
       <select
         value={selectedTeam}
         onChange={(e) => {
@@ -55,7 +54,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
           setIsOpen(true);
           onReset();
         }}
-        style={{ height: "32px" }}
+        className="bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         {teams.map((team) => (
           <option key={team} value={team}>
@@ -63,7 +62,8 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
           </option>
         ))}
       </select>
-      <div style={{ position: "relative", width: "300px" }}>
+
+      <div className="relative w-72">
         <input
           type="text"
           value={query}
@@ -73,30 +73,19 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
+          className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
         />
 
         {isOpen && filtered.length > 0 && (
-          <ul
-            style={{
-              position: "absolute",
-              width: "100%",
-              background: "white",
-              border: "1px solid #ccc",
-              maxHeight: "200px",
-              overflowY: "auto",
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-              zIndex: 10,
-            }}
-          >
+          <ul className="absolute w-full bg-gray-800 border border-gray-700 rounded-md mt-1 max-h-52 overflow-y-auto z-10 shadow-lg">
             {filtered.map((player) => (
               <li
                 key={player.id}
                 onClick={() => handleSelect(player)}
-                style={{ padding: "8px", cursor: "pointer" }}
+                className="px-3 py-2 cursor-pointer hover:bg-gray-700 text-sm flex justify-between"
               >
-                {player.fullName} - {player.teamAbbrev}
+                <span>{player.fullName}</span>
+                <span className="text-gray-400">{player.teamAbbrev}</span>
               </li>
             ))}
           </ul>
@@ -104,7 +93,10 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
       </div>
 
       {isFiltered && (
-        <button onClick={handleReset} style={{ height: "32px" }}>
+        <button
+          onClick={handleReset}
+          className="h-10 px-3 rounded-md bg-gray-700 hover:bg-gray-600 text-sm text-gray-300 transition-colors"
+        >
           Clear
         </button>
       )}

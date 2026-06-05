@@ -17,19 +17,20 @@ function App() {
   }
 
   return (
-    <div
-      style={{ fontFamily: "sans-serif", padding: "32px", maxWidth: "800px" }}
-    >
-      <h1>🏒 NHL Player Stats</h1>
-      <PlayerSearch
-        players={players}
-        onPlayerSelect={handlePlayerSelect}
-        onReset={handleReset}
-      />
-
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {playerDetail && !loading && <PlayerDisplay detail={playerDetail} />}
+    <div className="min-h-screen bg-gray-950 text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">🏒 NHL Player Stats</h1>
+        <PlayerSearch
+          players={players}
+          onPlayerSelect={handlePlayerSelect}
+          onReset={handleReset}
+        />
+        {loading && (
+          <p className="mt-6 text-gray-400 animate-pulse">Loading...</p>
+        )}
+        {error && <p className="mt-6 text-red-400">{error}</p>}
+        {playerDetail && !loading && <PlayerDisplay detail={playerDetail} />}
+      </div>
     </div>
   );
 }
