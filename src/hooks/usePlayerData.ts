@@ -31,7 +31,7 @@ useEffect(() => {
                 const lastSeason = data.seasonTotals
                     ?.filter((s: any) => s.leagueAbbrev === 'NHL' && s.gameTypeId === 2)
                     ?.at(-1)
-
+                const isGoalie = data.position === 'G'
                 setPlayerDetail({
                     player: {
                         id: data.playerId,
@@ -39,7 +39,20 @@ useEffect(() => {
                         teamAbbrev: data.currentTeamAbbrev,
                         position: data.position,
                     },
-                    stats: {
+                    stats: isGoalie
+                    ? {
+                        type: 'goalie',
+                        season: lastSeason?.season?.toString() ?? 'N/A',
+                        gamesPlayed: lastSeason?.gamesPlayed ?? 0,
+                        wins: lastSeason?.wins ?? 0,
+                        losses: lastSeason?.losses ?? 0,
+                        otLosses: lastSeason?.otLosses ?? 0,
+                        shutouts: lastSeason?.shutouts ?? 0,
+                        savePercentage: lastSeason?.savePctg ?? 0,
+                        goalsAgainstAverage: lastSeason?.goalsAgainstAvg ?? 0,
+                      }
+                    : {
+                        type: 'skater',
                         season: lastSeason?.season?.toString() ?? 'N/A',
                         gamesPlayed: lastSeason?.gamesPlayed ?? 0,
                         goals: lastSeason?.goals ?? 0,
@@ -47,7 +60,7 @@ useEffect(() => {
                         points: lastSeason?.points ?? 0,
                         plusMinus: lastSeason?.plusMinus ?? 0,
                         shots: lastSeason?.shots ?? 0,
-                        shootingPctg: lastSeason?.shootingPctg?? 0,
+                        shootingPctg: lastSeason?.shootingPctg ?? 0,
                     },
                     imageUrl: `https://assets.nhle.com/mugs/nhl/20242025/${data.currentTeamAbbrev}/${selectedId}.png`,
                 })
