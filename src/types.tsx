@@ -5,7 +5,8 @@ export interface Player {
   position: string;
 }
 
-export interface PlayerStats {
+export interface SkaterStats {
+  type: "skater";
   season: string;
   gamesPlayed: number;
   goals: number;
@@ -16,8 +17,22 @@ export interface PlayerStats {
   shootingPctg: number;
 }
 
+export interface GoalieStats {
+  type: "goalie";
+  season: string;
+  gamesPlayed: number;
+  wins: number;
+  losses: number;
+  otLosses: number;
+  shutouts: number;
+  savePercentage: number;
+  goalsAgainstAverage: number;
+}
+
 export interface PlayerDetail {
   player: Player;
   stats: PlayerStats;
   imageUrl: string;
 }
+
+export type PlayerStats = SkaterStats | GoalieStats;
