@@ -234,6 +234,72 @@ Stroke width: 2px
 
 ---
 
+## Testing Strategy
+
+### Test Layers
+
+```
+┌─────────────────────────────────────────┐
+│  E2E (Playwright)                       │
+│  Real browser ↔ real API ↔ real MongoDB │  ← catches: routing, API contracts,
+│                                          │     rendering, user interactions
+├─────────────────────────────────────────┤
+│  Integration (Vitest + Testing Library) │
+│  Render components, mock fetch          │  ← catches: component logic, state,
+│                                          │     hooks, edge cases
+├─────────────────────────────────────────┤
+│  Unit (Vitest)                          │
+│  Pure functions, utilities, types       │  ← catches: normalization, formatting,
+│                                          │     data transforms
+└─────────────────────────────────────────┘
+```
+
+**Why each layer matters:**
+
+- **Unit tests** are fast and precise but can't catch integration failures — like the `ReturnType<typeof usePlayerDetail>` type reference breaking the component tree, or `POST /batch` returning 404 because the route was in the wrong Express router.
+- **Component integration tests** verify hooks wire up correctly and components render with mock data, but they mock `fetch` — so API contract mismatches (wrong endpoint, wrong response shape) are invisible.
+- **E2E tests** use a real browser against real servers. They catch every class of bug the other layers miss. The trade-off is speed (~10–30s per test), so they run on PRs and merges, not on every file save.
+
+### Playwright E2E Tests
+
+**Setup:** Playwright starts the Vite dev server and hits the real API + MongoDB. Test data is seeded via `POST /players/aggregate` before the test run.
+
+**Core smoke tests (block merging if these fail):**
+
+| Test | What it verifies |
+|------|-----------------|
+| App loads | Player list populates in both search dropdowns |
+| Select two skaters | Radar chart + stats table render with percentile data |
+| Select two goalies | Goalie axes render, position locking works |
+| Swap players | Swap button flips Player A and Player B |
+| Single player | Radar shows one polygon when only one player is selected |
+| API error | Error banner appears when the API is unreachable |
+
+**Test data strategy:** Tests use the real NHL API data seeded into MongoDB. This avoids maintaining fake data that drifts from the real API shape. The aggregate job is idempotent — re-running it refreshes the test data.
+
+### Existing Vitest Suite (unchanged)
+
+- `usePlayerData.test.tsx` — player list and detail fetching
+- `StatsBox.test.tsx` — stat table rendering
+- `RadarChart.test.tsx` — SVG polygon rendering
+- `PlayerSearch.test.tsx` — search/dropdown UX
+- `PlayerImage.test.tsx` — image fallback behavior
+
+These continue to run on every file save via `vitest watch`. They're fast (< 3s total) and catch component-level regressions.
+
+### Running Tests
+
+```bash
+# Unit + integration (fast, every save)
+npm test
+
+# E2E (slower, before push/merge)
+npx playwright test
+
+# All together
+npm test && npx playwright test
+```
+
 ## Out of Scope (v1)
 
 - Comparing more than 2 players
