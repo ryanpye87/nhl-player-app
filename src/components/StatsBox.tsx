@@ -1,4 +1,11 @@
 import { Player, PlayerStats } from "../types";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "./ui/card";
 
 interface Props {
   player: Player;
@@ -7,9 +14,9 @@ interface Props {
 
 function StatRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <tr className="border-t border-gray-700">
-      <td className="py-2 pr-8 text-gray-400 text-sm">{label}</td>
-      <td className="py-2 text-white font-semibold text-sm">{value}</td>
+    <tr className="border-t border-border">
+      <td className="py-2 pr-8 text-muted-foreground text-sm">{label}</td>
+      <td className="py-2 text-foreground font-semibold text-sm">{value}</td>
     </tr>
   );
 }
@@ -60,24 +67,28 @@ function StatsBox({ player, stats }: Props) {
       : "N/A";
 
   return (
-    <div className="bg-gray-800 rounded-xl p-6 min-w-[260px]">
-      <h2 className="text-2xl font-bold">{player.fullName}</h2>
-      <p className="text-gray-400 text-sm mt-1 mb-4">
-        {player.position} · {player.teamAbbrev}
-      </p>
-      <p className="text-xs uppercase tracking-widest text-gray-500 mb-2">
-        {season} Regular Season
-      </p>
-      <table className="w-full">
-        <tbody>
-          {stats.type === "skater" ? (
-            <SkaterRows stats={stats} />
-          ) : (
-            <GoalieRows stats={stats} />
-          )}
-        </tbody>
-      </table>
-    </div>
+    <Card className="min-w-[260px]">
+      <CardHeader>
+        <CardTitle>{player.fullName}</CardTitle>
+        <CardDescription>
+          {player.position} · {player.teamAbbrev}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">
+          {season} Regular Season
+        </p>
+        <table className="w-full">
+          <tbody>
+            {stats.type === "skater" ? (
+              <SkaterRows stats={stats} />
+            ) : (
+              <GoalieRows stats={stats} />
+            )}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
   );
 }
 

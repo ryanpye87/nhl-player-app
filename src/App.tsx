@@ -17,7 +17,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white p-4 sm:p-8">
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">🏒 NHL Player Stats</h1>
         <PlayerSearch
@@ -26,9 +26,9 @@ function App() {
           onReset={handleReset}
         />
         {loading && (
-          <p className="mt-6 text-gray-400 animate-pulse">Loading...</p>
+          <p className="mt-6 text-muted-foreground animate-pulse">Loading...</p>
         )}
-        {error && <p className="mt-6 text-red-400">{error}</p>}
+        {error && <p className="mt-6 text-destructive">{error}</p>}
         {playerDetail && !loading && (
           <div className="mt-6">
             <PlayerDisplay detail={playerDetail} />

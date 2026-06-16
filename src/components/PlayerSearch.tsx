@@ -1,5 +1,14 @@
 import { useState, useMemo } from "react";
 import { Player } from "../types";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "./ui/select";
 
 interface Props {
   players: Player[];
@@ -10,7 +19,7 @@ interface Props {
 function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<string>("All");
+  const [selectedTeam, setSelectedTeam] = useState("All");
   const isFiltered = query !== "" || selectedTeam !== "All";
 
   const teams = useMemo(() => {
@@ -46,25 +55,29 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
 
   return (
     <div className="flex flex-col sm:flex-row gap-2 items-start">
-      <select
+      <Select
         value={selectedTeam}
-        onChange={(e) => {
-          setSelectedTeam(e.target.value);
+        onValueChange={(value) => {
+          setSelectedTeam((value as string) ?? "All");
           setQuery("");
           setIsOpen(true);
           onReset();
         }}
-        className="w-full sm:w-auto bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        {teams.map((team) => (
-          <option key={team} value={team}>
-            {team}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger className="w-full sm:w-auto">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {teams.map((team) => (
+            <SelectItem key={team} value={team}>
+              {team}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <div className="relative w-full sm:w-72">
-        <input
+        <Input
           type="text"
           value={query}
           placeholder="Search for a player..."
@@ -73,19 +86,20 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
-          className="w-full bg-gray-800 border border-gray-700 text-white rounded-md px-3 h-10 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-500"
         />
 
         {isOpen && filtered.length > 0 && (
-          <ul className="absolute w-full bg-gray-800 border border-gray-700 rounded-md mt-1 max-h-52 overflow-y-auto z-10 shadow-lg">
+          <ul className="absolute w-full bg-popover border border-border rounded-md mt-1 max-h-52 overflow-y-auto z-10 shadow-lg">
             {filtered.map((player) => (
               <li
                 key={player.id}
                 onClick={() => handleSelect(player)}
-                className="px-3 py-2 cursor-pointer hover:bg-gray-700 text-sm flex justify-between"
+                className="px-3 py-2 cursor-pointer hover:bg-accent hover:text-accent-foreground text-sm flex justify-between"
               >
                 <span>{player.fullName}</span>
-                <span className="text-gray-400">{player.teamAbbrev}</span>
+                <span className="text-muted-foreground">
+                  {player.teamAbbrev}
+                </span>
               </li>
             ))}
           </ul>
@@ -93,12 +107,9 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
       </div>
 
       {isFiltered && (
-        <button
-          onClick={handleReset}
-          className="w-full sm:w-auto h-10 px-3 rounded-md bg-gray-700 hover:bg-gray-600 text-sm text-gray-300 transition-colors"
-        >
+        <Button variant="outline" size="default" onClick={handleReset}>
           Clear
-        </button>
+        </Button>
       )}
     </div>
   );

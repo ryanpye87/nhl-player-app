@@ -10,7 +10,8 @@ describe("PlayerSearch", () => {
     { id: 3, fullName: "Alex Ovechkin", teamAbbrev: "WSH", position: "LW" },
   ];
 
-  it("renders team dropdown options", () => {
+  it("renders team dropdown options", async () => {
+    const user = userEvent.setup();
     render(
       <PlayerSearch
         players={players}
@@ -19,7 +20,13 @@ describe("PlayerSearch", () => {
       />,
     );
 
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    const trigger = screen.getByRole("combobox");
+    expect(trigger).toBeInTheDocument();
+    expect(trigger).toHaveTextContent("All");
+
+    // Open the select popup to reveal options
+    await user.click(trigger);
+
     expect(screen.getByRole("option", { name: "All" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "EDM" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "PIT" })).toBeInTheDocument();
