@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# 🏒 NHL Player Compare
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A single-page application for comparing NHL player stats head-to-head using a Football Manager-style attribute polygon (radar chart).
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Player search** — typeahead search across all active NHL players
+- **Side-by-side comparison** — two player cards flank a shared radar chart
+- **Attribute polygon** — 10-axis decagon plotting normalized stats (0–99 percentile scale) with overlaid colored polygons for each player
+- **Stat categories** — toggle between Overall, Offense, and Defense views
+- **Goalie mode** — selecting a goalie locks both slots to goalie-only comparison with a dedicated goalie stat line
+- **Stat table** — side-by-side raw numbers with the higher value highlighted per row
+- **Swap** — one-click button to flip the two players
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Choice |
+|-------|--------|
+| Framework | React 19 + TypeScript |
+| Build | Vite 6 |
+| Styling | Tailwind CSS v4 + shadcn/ui v4 (Base UI primitives) |
+| Charts | Hand-rolled SVG radar polygon |
+| Icons | Lucide React |
+| Testing | Vitest + Testing Library |
+| Data | NHL API |
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # Start dev server (http://localhost:5173)
+npm run build      # Production build
+npm run preview    # Preview production build
+npm test           # Run tests
+npm run test:watch # Run tests in watch mode
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── components/
+│   ├── ui/              # shadcn/ui primitives (Button, Card, Input, Select, …)
+│   ├── PlayerSearch.tsx  # Player typeahead + team filter
+│   ├── PlayerDisplay.tsx # Side-by-side comparison layout
+│   ├── PlayerImage.tsx   # Player headshot card
+│   └── StatsBox.tsx      # Stats table card
+├── hooks/
+│   └── usePlayerData.ts  # NHL API data fetching
+├── lib/
+│   └── utils.ts          # cn() classname utility
+├── App.tsx
+├── main.tsx
+└── index.css             # Tailwind + shadcn design tokens
+```
+
+## Design System
+
+This project uses **shadcn/ui v4** with the `base-vega` style. All colors reference CSS custom properties defined in `src/index.css` — never hardcoded hex values. The dark theme is the default.
+
+See [docs/PRD.md](docs/PRD.md) for the full product requirements document.
+
+## Roadmap
+
+- [x] Player search & display
+- [x] shadcn/ui integration (Button, Card, Input, Select)
+- [ ] Two-player comparison with radar polygon
+- [ ] Goalie-only comparison mode
+- [ ] Stat category toggles (Offense / Defense / Overall)
+- [ ] Advanced stats (xGF, xGA, Corsi) — needs secondary data source
+- [ ] Position-group & rookie normalization filters
