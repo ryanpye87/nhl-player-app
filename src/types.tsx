@@ -29,7 +29,7 @@ export interface GoalieStats {
   losses: number;
   otLosses: number;
   shutouts: number;
-  savePercentage: number;
+  savePctg: number;
   goalsAgainstAverage: number;
   avgToi: number;
 }

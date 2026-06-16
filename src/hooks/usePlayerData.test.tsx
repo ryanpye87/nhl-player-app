@@ -25,26 +25,31 @@ describe("usePlayerData", () => {
   const playersResponse = [
     { id: 1, fullName: "Connor McDavid", teamAbbrev: "EDM", position: "C" },
   ]
-  const detailResponse = {
+  const aggregatedResponse = {
     playerId: 1,
-    firstName: { default: "Connor" },
-    lastName: { default: "McDavid" },
-    currentTeamAbbrev: "EDM",
+    fullName: "Connor McDavid",
+    teamAbbrev: "EDM",
     position: "C",
-    seasonTotals: [
-      {
-        leagueAbbrev: "NHL",
-        gameTypeId: 2,
-        season: "20232024",
-        gamesPlayed: 82,
-        goals: 64,
-        assists: 89,
-        points: 153,
-        plusMinus: 30,
-        shots: 300,
-        shootingPctg: 21.3,
-      },
-    ],
+    season: "20252026",
+    isGoalie: false,
+    gamesPlayed: 82,
+    goals: 64,
+    assists: 89,
+    points: 153,
+    plusMinus: 30,
+    shots: 300,
+    shootingPctg: 0.213,
+    avgToi: 21.5,
+    hits: 45,
+    blockedShots: 20,
+    pim: 28,
+    wins: 0,
+    losses: 0,
+    otLosses: 0,
+    shutouts: 0,
+    savePctg: 0,
+    goalsAgainstAvg: 0,
+    updatedAt: "2026-06-16T00:00:00.000Z",
   }
 
   beforeEach(() => {
@@ -75,8 +80,8 @@ describe("usePlayerData", () => {
         if ((url as string).endsWith("/players")) {
           return { ok: true, json: async () => playersResponse }
         }
-        if ((url as string).endsWith("/players/1/stats")) {
-          return { ok: true, json: async () => detailResponse }
+        if ((url as string).endsWith("/players/1/aggregated")) {
+          return { ok: true, json: async () => aggregatedResponse }
         }
         return { ok: false }
       }),
@@ -97,7 +102,7 @@ describe("usePlayerData", () => {
         if ((url as string).endsWith("/players")) {
           return { ok: true, json: async () => playersResponse }
         }
-        if ((url as string).endsWith("/players/1/stats")) {
+        if ((url as string).endsWith("/players/1/aggregated")) {
           return { ok: false, json: async () => ({}) }
         }
         return { ok: false }

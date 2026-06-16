@@ -1,8 +1,7 @@
 import { useState, useMemo } from "react"
-import { SkaterStats, GoalieStats } from "./types"
-import { usePlayerList, usePlayerDetail } from "./hooks/usePlayerData"
-import { usePercentiles } from "./hooks/usePercentiles"
-import { useAggregatedStats } from "./hooks/useAggregatedStats"
+import { PlayerDetail, SkaterStats, GoalieStats } from "./types"
+import { usePlayerList } from "./hooks/usePlayerData"
+import { usePlayerBatch } from "./hooks/usePlayerBatch"
 import PlayerSearch from "./components/PlayerSearch"
 import { RadarChart } from "./components/RadarChart"
 import type { RadarAxis, RadarPlayerData } from "./components/RadarChart"
@@ -40,7 +39,7 @@ const GOALIE_AXES: RadarAxis[] = [
 // ── Helpers ─────────────────────────────────────────────────────────
 
 function buildRadarPlayer(
-  detail: ReturnType<typeof usePlayerDetail>["playerDetail"],
+  detail: PlayerDetail | null,
   percentiles: Record<string, number> | null,
   color: string,
 ): RadarPlayerData | null {
@@ -70,14 +69,11 @@ function App() {
   const [idA, setIdA] = useState<number | null>(null)
   const [idB, setIdB] = useState<number | null>(null)
 
-  const { playerDetail: detailA, loading: loadingA } = usePlayerDetail(idA)
-  const { playerDetail: detailB, loading: loadingB } = usePlayerDetail(idB)
-
-  const { percentiles: pctA } = usePercentiles(idA)
-  const { percentiles: pctB } = usePercentiles(idB)
-
-  const { stats: aggA } = useAggregatedStats(idA)
-  const { stats: aggB } = useAggregatedStats(idB)
+  const {
+    detailA, detailB,
+    pctA, pctB,
+    loading: batchLoading,
+  } = usePlayerBatch(idA, idB)
 
   // Goalie locking — enforce same position type
   const posA = detailA?.player.position
@@ -103,21 +99,10 @@ function App() {
     return list
   }, [detailA, pctA, detailB, pctB])
 
-  // Merge detail + aggregated into a single source of truth per player
-  const mergedA = useMemo(() => {
-    if (!detailA) return null
-    return { ...detailA.stats, ...aggA } as SkaterStats | GoalieStats
-  }, [detailA, aggA])
-
-  const mergedB = useMemo(() => {
-    if (!detailB) return null
-    return { ...detailB.stats, ...aggB } as SkaterStats | GoalieStats
-  }, [detailB, aggB])
-
   // Stats table data
   const statKeys = useMemo(() => {
-    if (!mergedA || !mergedB) return []
-    const isG = mergedA.type === "goalie"
+    if (!detailA?.stats || !detailB?.stats) return []
+    const isG = detailA.stats.type === "goalie"
     if (isG) {
       return [
         "gamesPlayed", "wins", "losses", "otLosses", "shutouts",
@@ -128,7 +113,7 @@ function App() {
       "gamesPlayed", "goals", "assists", "points", "plusMinus",
       "shots", "shootingPctg", "avgToi", "hits", "blockedShots", "pim",
     ] as const
-  }, [mergedA, mergedB])
+  }, [detailA?.stats, detailB?.stats])
 
   return (
     <div className="min-h-screen bg-background text-foreground p-4 sm:p-8">
@@ -169,7 +154,7 @@ function App() {
                 </div>
               </div>
             )}
-            {loadingA && (
+            {batchLoading && (
               <p className="text-xs text-muted-foreground mt-1 animate-pulse">
                 Loading...
               </p>
@@ -223,7 +208,7 @@ function App() {
                 </div>
               </div>
             )}
-            {loadingB && (
+            {batchLoading && (
               <p className="text-xs text-muted-foreground mt-1 animate-pulse">
                 Loading...
               </p>
@@ -239,7 +224,7 @@ function App() {
         )}
 
         {/* Stats comparison table */}
-        {detailA && detailB && mergedA && mergedB && detailA.stats.type === detailB.stats.type && (
+        {detailA?.stats && detailB?.stats && detailA.stats.type === detailB.stats.type && (
           <Card>
             <CardHeader>
               <CardTitle>Stat Comparison</CardTitle>
@@ -260,8 +245,8 @@ function App() {
                   </thead>
                   <tbody>
                     {statKeys.map((key) => {
-                      const vA = (mergedA as any)[key] ?? 0
-                      const vB = (mergedB as any)[key] ?? 0
+                      const vA = (detailA.stats as any)[key] ?? 0
+                      const vB = (detailB.stats as any)[key] ?? 0
                       const isInverted =
                         key === "pim" ||
                         key === "goalsAgainstAvg" ||
@@ -277,7 +262,7 @@ function App() {
                               aBetter ? "font-bold text-foreground" : "text-muted-foreground"
                             }`}
                           >
-                            {formatStatValue(key, mergedA)}
+                            {formatStatValue(key, detailA.stats)}
                           </td>
                           <td className="py-2 px-2 text-center text-muted-foreground capitalize">
                             {label}
@@ -287,7 +272,7 @@ function App() {
                               bBetter ? "font-bold text-foreground" : "text-muted-foreground"
                             }`}
                           >
-                            {formatStatValue(key, mergedB)}
+                            {formatStatValue(key, detailB.stats)}
                           </td>
                         </tr>
                       )

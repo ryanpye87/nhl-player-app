@@ -36,7 +36,7 @@ const goalieDetail = {
     losses: 15,
     otLosses: 5,
     shutouts: 8,
-    savePercentage: 0.92,
+    savePctg: 0.92,
     goalsAgainstAverage: 2.45,
   } as const,
 };

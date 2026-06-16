@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { Player, PlayerDetail } from "../types"
 
+const API_BASE = "http://localhost:3001"
+
 /** Fetch the full player list once on mount (for search dropdowns). */
 export function usePlayerList() {
   const [players, setPlayers] = useState<Player[]>([])
@@ -12,7 +14,7 @@ export function usePlayerList() {
 
     async function fetchPlayers() {
       try {
-        const res = await fetch("http://localhost:3001/players")
+        const res = await fetch(`${API_BASE}/players`)
         if (!res.ok) throw new Error("Failed to fetch players")
         const data = await res.json()
         if (!cancelled) setPlayers(data)
@@ -33,7 +35,7 @@ export function usePlayerList() {
   return { players, loading, error }
 }
 
-/** Fetch stats for a single player. Pass null to clear. */
+/** Fetch aggregated stats for a single player. Pass null to clear. */
 export function usePlayerDetail(playerId: number | null) {
   const [playerDetail, setPlayerDetail] = useState<PlayerDetail | null>(null)
   const [loading, setLoading] = useState(false)
@@ -53,62 +55,50 @@ export function usePlayerDetail(playerId: number | null) {
 
       try {
         const res = await fetch(
-          `http://localhost:3001/players/${playerId}/stats`,
+          `${API_BASE}/players/${playerId}/aggregated`,
         )
         if (!res.ok) throw new Error("Failed to fetch player")
         const data = await res.json()
 
         if (!cancelled) {
-          const lastSeason = data.seasonTotals
-            ?.filter(
-              (s: any) => s.leagueAbbrev === "NHL" && s.gameTypeId === 2,
-            )
-            ?.at(-1)
-
-          const isGoalie = data.position === "G"
-
-          // Parse avgToi from "mm:ss" → decimal minutes
-          const toiParts = (lastSeason?.avgToi as string | undefined)
-            ?.split(":")
-            .map(Number) ?? [0, 0]
-          const avgToi = (toiParts[0] ?? 0) + (toiParts[1] ?? 0) / 60
+          const isGoalie: boolean = data.isGoalie
 
           setPlayerDetail({
             player: {
               id: data.playerId,
-              fullName: `${data.firstName.default} ${data.lastName.default}`,
-              teamAbbrev: data.currentTeamAbbrev,
+              fullName: data.fullName,
+              teamAbbrev: data.teamAbbrev,
               position: data.position,
             },
             stats: isGoalie
               ? {
                   type: "goalie",
-                  season: lastSeason?.season?.toString() ?? "N/A",
-                  gamesPlayed: lastSeason?.gamesPlayed ?? 0,
-                  wins: lastSeason?.wins ?? 0,
-                  losses: lastSeason?.losses ?? 0,
-                  otLosses: lastSeason?.otLosses ?? 0,
-                  shutouts: lastSeason?.shutouts ?? 0,
-                  savePercentage: lastSeason?.savePctg ?? 0,
-                  goalsAgainstAverage: lastSeason?.goalsAgainstAvg ?? 0,
-                  avgToi,
+                  season: data.season ?? "N/A",
+                  gamesPlayed: data.gamesPlayed ?? 0,
+                  wins: data.wins ?? 0,
+                  losses: data.losses ?? 0,
+                  otLosses: data.otLosses ?? 0,
+                  shutouts: data.shutouts ?? 0,
+                  savePctg: data.savePctg ?? 0,
+                  goalsAgainstAverage: data.goalsAgainstAvg ?? 0,
+                  avgToi: data.avgToi ?? 0,
                 }
               : {
                   type: "skater",
-                  season: lastSeason?.season?.toString() ?? "N/A",
-                  gamesPlayed: lastSeason?.gamesPlayed ?? 0,
-                  goals: lastSeason?.goals ?? 0,
-                  assists: lastSeason?.assists ?? 0,
-                  points: lastSeason?.points ?? 0,
-                  plusMinus: lastSeason?.plusMinus ?? 0,
-                  shots: lastSeason?.shots ?? 0,
-                  shootingPctg: lastSeason?.shootingPctg ?? 0,
-                  avgToi,
-                  hits: lastSeason?.hits ?? 0,
-                  blockedShots: lastSeason?.blockedShots ?? 0,
-                  pim: lastSeason?.pim ?? 0,
+                  season: data.season ?? "N/A",
+                  gamesPlayed: data.gamesPlayed ?? 0,
+                  goals: data.goals ?? 0,
+                  assists: data.assists ?? 0,
+                  points: data.points ?? 0,
+                  plusMinus: data.plusMinus ?? 0,
+                  shots: data.shots ?? 0,
+                  shootingPctg: data.shootingPctg ?? 0,
+                  avgToi: data.avgToi ?? 0,
+                  hits: data.hits ?? 0,
+                  blockedShots: data.blockedShots ?? 0,
+                  pim: data.pim ?? 0,
                 },
-            imageUrl: `https://assets.nhle.com/mugs/nhl/20252026/${data.currentTeamAbbrev}/${playerId}.png`,
+            imageUrl: `https://assets.nhle.com/mugs/nhl/${data.season}/${data.teamAbbrev}/${playerId}.png`,
           })
         }
       } catch (err) {

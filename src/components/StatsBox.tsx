@@ -54,7 +54,7 @@ function GoalieRows({
       <StatRow label="Losses" value={stats.losses} />
       <StatRow label="OT Losses" value={stats.otLosses} />
       <StatRow label="Shutouts" value={stats.shutouts} />
-      <StatRow label="Save %" value={stats.savePercentage.toFixed(3)} />
+      <StatRow label="Save %" value={stats.savePctg.toFixed(3)} />
       <StatRow label="GAA" value={stats.goalsAgainstAverage.toFixed(2)} />
     </>
   );
