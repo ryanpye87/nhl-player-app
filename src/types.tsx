@@ -15,6 +15,10 @@ export interface SkaterStats {
   plusMinus: number;
   shots: number;
   shootingPctg: number;
+  avgToi: number;
+  hits: number;
+  blockedShots: number;
+  pim: number;
 }
 
 export interface GoalieStats {
@@ -27,6 +31,7 @@ export interface GoalieStats {
   shutouts: number;
   savePercentage: number;
   goalsAgainstAverage: number;
+  avgToi: number;
 }
 
 export interface PlayerDetail {

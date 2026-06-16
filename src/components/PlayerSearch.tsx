@@ -11,34 +11,49 @@ import {
 } from "./ui/select";
 
 interface Props {
-  players: Player[];
-  onPlayerSelect: (player: Player) => void;
-  onReset: () => void;
+  players: Player[]
+  onPlayerSelect: (player: Player) => void
+  onReset: () => void
+  positionFilter?: "skater" | "goalie"
+  placeholder?: string
 }
 
-function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
+function PlayerSearch({
+  players,
+  onPlayerSelect,
+  onReset,
+  positionFilter,
+  placeholder = "Search for a player...",
+}: Props) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState("All");
   const isFiltered = query !== "" || selectedTeam !== "All";
 
+  // Apply position filter to available players
+  const eligible = useMemo(() => {
+    if (!positionFilter) return players
+    if (positionFilter === "goalie") return players.filter((p) => p.position === "G")
+    return players.filter((p) => p.position !== "G")
+  }, [players, positionFilter])
+
   const teams = useMemo(() => {
-    const abbrevs = [...new Set(players.map((p) => p.teamAbbrev))].sort();
-    return ["All", ...abbrevs];
-  }, [players]);
+    const abbrevs = [...new Set(eligible.map((p) => p.teamAbbrev))].sort()
+    return ["All", ...abbrevs]
+  }, [eligible])
 
   const filtered = useMemo(
     () =>
-      players.filter((p) => {
+      eligible.filter((p) => {
         const matchesTeam =
-          selectedTeam === "All" || p.teamAbbrev === selectedTeam;
+          selectedTeam === "All" || p.teamAbbrev === selectedTeam
         const matchesQuery = p.fullName
           .toLowerCase()
-          .includes(query.toLowerCase());
-        return matchesTeam && matchesQuery;
+          .includes(query.toLowerCase())
+        return matchesTeam && matchesQuery
       }),
-    [players, selectedTeam, query],
-  );
+    [eligible, selectedTeam, query],
+  )
 
   function handleSelect(player: Player) {
     onPlayerSelect(player);
@@ -80,7 +95,7 @@ function PlayerSearch({ players, onPlayerSelect, onReset }: Props) {
         <Input
           type="text"
           value={query}
-          placeholder="Search for a player..."
+          placeholder={placeholder}
           onChange={(e) => {
             setQuery(e.target.value);
             setIsOpen(true);

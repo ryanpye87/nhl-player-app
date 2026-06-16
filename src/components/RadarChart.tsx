@@ -8,6 +8,7 @@ import {
 export interface RadarAxis {
   key: string
   label: string
+  description?: string // full stat name for tooltips (falls back to label)
 }
 
 export interface RadarPlayerData {
@@ -136,7 +137,7 @@ function RadarChart({
                   strokeWidth={1}
                 >
                   <title>
-                    {player.label}: {axes[i].label} — {rawValue}
+                    {player.label}: {axes[i].description ?? axes[i].label} — {rawValue}
                   </title>
                 </circle>
               )
